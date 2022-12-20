@@ -5,14 +5,14 @@ import 'package:instagram/constants.dart';
 import 'package:instagram/pictures_in_grid.dart';
 import 'package:instagram/story.dart';
 
-class UserSpace extends StatefulWidget {
-  const UserSpace({super.key});
+class GestSpace extends StatefulWidget {
+  const GestSpace({super.key});
 
   @override
-  State<UserSpace> createState() => _UserSpaceState();
+  State<GestSpace> createState() => _GestSpaceState();
 }
 
-class _UserSpaceState extends State<UserSpace> {
+class _GestSpaceState extends State<GestSpace> {
   @override
   void dispose() {
     pageController.dispose();
@@ -36,7 +36,9 @@ class _UserSpaceState extends State<UserSpace> {
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
           focusColor: Colors.transparent,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+          },
           icon: Icon(
             FontAwesomeIcons.chevronLeft,
             size: 15,
@@ -61,7 +63,7 @@ class _UserSpaceState extends State<UserSpace> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              "instagram",
+              "Instagram",
               style: GoogleFonts.abel(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

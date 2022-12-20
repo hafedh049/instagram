@@ -2,11 +2,11 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instagram/constants.dart';
+import 'package:instagram/user_profile.dart';
 import 'home.dart';
 import 'reels.dart';
 import 'search.dart';
 import 'shop.dart';
-import 'guest_profile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Search(),
     Reels(),
     Shop(),
-    UserSpace(),
+    UserProfile(),
   ];
   List<IconData> pagesIcons = const <IconData>[
     FontAwesomeIcons.house,

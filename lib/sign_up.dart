@@ -462,7 +462,6 @@ class _SignUpState extends State<SignUp> {
                             );
                             Fluttertoast.showToast(
                               msg: "please wait a few seconds",
-                              backgroundColor: Colors.blue,
                               fontSize: 16,
                               gravity: ToastGravity.BOTTOM,
                               textColor: Colors.white,
@@ -524,7 +523,6 @@ class _SignUpState extends State<SignUp> {
                           } else {
                             Fluttertoast.showToast(
                               msg: "please choose a picture",
-                              backgroundColor: Colors.blue,
                               fontSize: 16,
                               gravity: ToastGravity.BOTTOM,
                               textColor: Colors.white,
@@ -535,7 +533,6 @@ class _SignUpState extends State<SignUp> {
                       } catch (e) {
                         Fluttertoast.showToast(
                           msg: e.toString(),
-                          backgroundColor: Colors.blue,
                           fontSize: 16,
                           gravity: ToastGravity.BOTTOM,
                           textColor: Colors.white,

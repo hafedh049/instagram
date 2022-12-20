@@ -158,7 +158,6 @@ class _SignInState extends State<SignIn> {
                       );
                       Fluttertoast.showToast(
                         msg: "please wait a few seconds",
-                        backgroundColor: Colors.blue,
                         fontSize: 16,
                         gravity: ToastGravity.BOTTOM,
                         textColor: Colors.white,
@@ -183,7 +182,6 @@ class _SignInState extends State<SignIn> {
                       );
                       Fluttertoast.showToast(
                         msg: e.toString(),
-                        backgroundColor: Colors.blue,
                         fontSize: 16,
                         gravity: ToastGravity.BOTTOM,
                         textColor: Colors.white,

@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:instagram/chats.dart';
 import 'package:instagram/instagram_title.dart';
 import 'package:instagram/post.dart';
+import 'package:instagram/saved.dart';
 import 'package:instagram/story.dart';
 import 'package:shimmer/shimmer.dart';
 import 'add_story.dart';
@@ -24,7 +25,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   File? selectedImage;
-  void selectPicture(bool state, String username) async {
+  List<String> postsList = [];
+  void selectPicture(bool state, String username, String pictureURL) async {
     try {
       XFile? image = await ImagePicker().pickImage(
         source: state ? ImageSource.camera : ImageSource.gallery,
@@ -47,7 +49,6 @@ class _HomeState extends State<Home> {
         if (croppedImage != null) {
           Fluttertoast.showToast(
             msg: "Uploading ...",
-            backgroundColor: Colors.blue,
             fontSize: 16,
             gravity: ToastGravity.BOTTOM,
             textColor: Colors.white,
@@ -68,18 +69,28 @@ class _HomeState extends State<Home> {
                   .set(
                 {
                   "uid": FirebaseAuth.instance.currentUser!.uid,
-                  "timestamp": Timestamp.now(),
+                  "creation_date": now,
+                  "post_id":
+                      "${FirebaseAuth.instance.currentUser!.uid} ${now.toString()}",
                   "username": username,
+                  "profile_picture_url": pictureURL,
                   "reacted_by_me": false,
+                  "saved_by_me": false,
                   "post": await task.ref.getDownloadURL(),
                   "reacting_list": [],
                   "comments_list": [],
                   "saved_list": [],
                 },
-              );
+              ).then((value) async {
+                postsList.add(
+                    "${FirebaseAuth.instance.currentUser!.uid} ${now.toString()}");
+                await FirebaseFirestore.instance
+                    .collection("users")
+                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                    .update({"posts_list": postsList});
+              });
               Fluttertoast.showToast(
                 msg: "post successfully uploaded",
-                backgroundColor: Colors.blue,
                 fontSize: 16,
                 gravity: ToastGravity.BOTTOM,
                 textColor: Colors.white,
@@ -93,7 +104,6 @@ class _HomeState extends State<Home> {
     } catch (e) {
       Fluttertoast.showToast(
         msg: e.toString(),
-        backgroundColor: Colors.blue,
         fontSize: 16,
         gravity: ToastGravity.BOTTOM,
         textColor: Colors.white,
@@ -117,6 +127,7 @@ class _HomeState extends State<Home> {
               Map<String, dynamic>? data = snapshot.data!.data();
               return Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -129,7 +140,8 @@ class _HomeState extends State<Home> {
                           splashColor: Colors.transparent,
                           focusColor: Colors.transparent,
                           onPressed: () async {
-                            selectPicture(false, data!["username"]);
+                            selectPicture(false, data!["username"],
+                                data["profile_picture_url"]);
                           },
                           icon: Icon(
                             FontAwesomeIcons.squarePlus,
@@ -143,9 +155,16 @@ class _HomeState extends State<Home> {
                           highlightColor: Colors.transparent,
                           splashColor: Colors.transparent,
                           focusColor: Colors.transparent,
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    const Saved(),
+                              ),
+                            );
+                          },
                           icon: Icon(
-                            FontAwesomeIcons.heart,
+                            FontAwesomeIcons.bookmark,
                             size: 15,
                             color: bgColor == Colors.white
                                 ? Colors.black
@@ -177,11 +196,18 @@ class _HomeState extends State<Home> {
                   ),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: const <Widget>[AddStory()] +
-                          <Widget>[for (int i = 0; i < 50; i++) const Story()],
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: const <Widget>[AddStory()] +
+                            <Widget>[
+                              for (Map<String, dynamic> story
+                                  in data!["stories_list"])
+                                const Story()
+                            ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
