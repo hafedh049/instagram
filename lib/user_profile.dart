@@ -9,6 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instagram/constants.dart';
 import 'package:instagram/pictures_in_grid.dart';
+import 'package:instagram/sign_in.dart';
 import 'package:instagram/story.dart';
 
 class UserProfile extends StatefulWidget {
@@ -51,6 +52,27 @@ class _UserProfileState extends State<UserProfile> {
             color: bgColor == Colors.white ? Colors.black : Colors.white,
           ),
         ),
+        actions: <Widget>[
+          IconButton(
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            focusColor: Colors.transparent,
+            onPressed: () {
+              FirebaseAuth.instance
+                  .signOut()
+                  .then((value) => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => const SignIn(),
+                      )));
+            },
+            icon: Icon(
+              Icons.exit_to_app,
+              size: 15,
+              color: bgColor == Colors.white ? Colors.black : Colors.white,
+            ),
+          ),
+        ],
         backgroundColor: bgColor,
       ),
       body: Padding(

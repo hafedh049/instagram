@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:instagram/chat_room.dart';
 import 'constants.dart';
 
 class Chats extends StatefulWidget {
@@ -148,7 +150,16 @@ class ChatsState extends State<Chats> {
                     highlightColor: Colors.transparent,
                     splashColor: Colors.transparent,
                     focusColor: Colors.transparent,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => ChatRoom(
+                                remoteData: {
+                                  "uid": "XNToL0FJxwTXkmgupH8agYd3HuI3"
+                                }),
+                          ));
+                    },
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
