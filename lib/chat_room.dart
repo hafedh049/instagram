@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -83,17 +84,19 @@ class _ChatRoomState extends State<ChatRoom> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            const CircleAvatar(
+            CircleAvatar(
               radius: 15,
               backgroundColor: Colors.pinkAccent,
-              backgroundImage: AssetImage("assets/hafedh.png"),
+              backgroundImage: CachedNetworkImageProvider(
+                widget.remoteData["profile_picture_url"],
+              ),
             ),
             const SizedBox(width: 5),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "hafedh",
+                  widget.remoteData["username"],
                   style: GoogleFonts.abel(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -119,7 +122,9 @@ class _ChatRoomState extends State<ChatRoom> {
         stream: FirebaseFirestore.instance
             .collection("chats")
             .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection(widget.remoteData["uid"])
+            .collection("messages")
+            .doc(widget.remoteData["uid"])
+            .collection("content")
             .orderBy("created_at", descending: true)
             .snapshots(),
         builder: (context, snapshot) {
@@ -247,7 +252,6 @@ class _ChatRoomState extends State<ChatRoom> {
               }
             }).toList();
             return Chat(
-              //isAttachmentUploading: true,
               scrollPhysics: const BouncingScrollPhysics(),
               isLastPage: true,
               theme: const DarkChatTheme(
@@ -358,7 +362,9 @@ class _ChatRoomState extends State<ChatRoom> {
           await FirebaseFirestore.instance
               .collection("chats")
               .doc(FirebaseAuth.instance.currentUser!.uid)
-              .collection(widget.remoteData["uid"])
+              .collection("messages")
+              .doc(widget.remoteData["uid"])
+              .collection("content")
               .doc(now.toString())
               .set(
             {
@@ -376,7 +382,9 @@ class _ChatRoomState extends State<ChatRoom> {
               await FirebaseFirestore.instance
                   .collection("chats")
                   .doc(widget.remoteData["uid"])
-                  .collection(FirebaseAuth.instance.currentUser!.uid)
+                  .collection("messages")
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .collection("content")
                   .doc(now.toString())
                   .set(
                 {
@@ -391,6 +399,7 @@ class _ChatRoomState extends State<ChatRoom> {
                 },
               ).then(
                 (value) {
+                  play("notif");
                   Fluttertoast.showToast(msg: "File uploading is done");
                 },
               );
@@ -426,7 +435,9 @@ class _ChatRoomState extends State<ChatRoom> {
           await FirebaseFirestore.instance
               .collection("chats")
               .doc(FirebaseAuth.instance.currentUser!.uid)
-              .collection(widget.remoteData["uid"])
+              .collection("messages")
+              .doc(widget.remoteData["uid"])
+              .collection("content")
               .doc(now.toString())
               .set(
             {
@@ -443,7 +454,9 @@ class _ChatRoomState extends State<ChatRoom> {
               await FirebaseFirestore.instance
                   .collection("chats")
                   .doc(widget.remoteData["uid"])
-                  .collection(FirebaseAuth.instance.currentUser!.uid)
+                  .collection("messages")
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .collection("content")
                   .doc(now.toString())
                   .set(
                 {
@@ -457,6 +470,7 @@ class _ChatRoomState extends State<ChatRoom> {
                 },
               ).then(
                 (value) {
+                  play("notif");
                   Fluttertoast.showToast(msg: "Picture Uploading is done");
                 },
               );
@@ -472,7 +486,9 @@ class _ChatRoomState extends State<ChatRoom> {
     await FirebaseFirestore.instance
         .collection("chats")
         .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection(widget.remoteData["uid"])
+        .collection("messages")
+        .doc(widget.remoteData["uid"])
+        .collection("content")
         .doc(now.toString())
         .set(
       {
@@ -486,7 +502,9 @@ class _ChatRoomState extends State<ChatRoom> {
       await FirebaseFirestore.instance
           .collection("chats")
           .doc(widget.remoteData["uid"])
-          .collection(FirebaseAuth.instance.currentUser!.uid)
+          .collection("messages")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("content")
           .doc(now.toString())
           .set(
         {
@@ -496,7 +514,9 @@ class _ChatRoomState extends State<ChatRoom> {
           "created_at": now.millisecondsSinceEpoch,
           "type": "text"
         },
-      ).then((value) {});
+      ).then((value) {
+        play("message");
+      });
     });
   }
 

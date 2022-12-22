@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
   List<IconData> pagesIcons = const <IconData>[
     FontAwesomeIcons.house,
-    FontAwesomeIcons.filter,
+    FontAwesomeIcons.magnifyingGlass,
     FontAwesomeIcons.video,
     FontAwesomeIcons.shop,
     FontAwesomeIcons.userAstronaut,
@@ -41,11 +41,13 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: CurvedNavigationBar(
         color: bgColor,
         items: pagesIcons
-            .map((IconData id) => Icon(
-                  id,
-                  color: bgColor == Colors.white ? Colors.black : Colors.white,
-                  size: 20,
-                ))
+            .map(
+              (IconData id) => Icon(
+                id,
+                color: Colors.blue,
+                size: 20,
+              ),
+            )
             .toList(),
         animationCurve: Curves.fastOutSlowIn,
         animationDuration: const Duration(milliseconds: 300),

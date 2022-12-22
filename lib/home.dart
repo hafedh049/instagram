@@ -13,7 +13,6 @@ import 'package:instagram/instagram_title.dart';
 import 'package:instagram/post.dart';
 import 'package:instagram/saved.dart';
 import 'package:instagram/story.dart';
-import 'package:shimmer/shimmer.dart';
 import 'add_story.dart';
 import 'constants.dart';
 
@@ -81,7 +80,7 @@ class _HomeState extends State<Home> {
                   "comments_list": [],
                   "saved_list": [],
                 },
-              ).then((value) async {
+              ).then((void value) async {
                 postsList.add(
                     "${FirebaseAuth.instance.currentUser!.uid} ${now.toString()}");
                 await FirebaseFirestore.instance
@@ -251,14 +250,10 @@ class _HomeState extends State<Home> {
                               );
                             }
                           } else {
-                            return Shimmer.fromColors(
-                              direction: ShimmerDirection.ltr,
-                              enabled: true,
-                              loop: 10,
-                              period: const Duration(milliseconds: 300),
-                              baseColor: bgColor,
-                              highlightColor: Colors.grey,
-                              child: Container(),
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.blue,
+                              ),
                             );
                           }
                         }),

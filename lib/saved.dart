@@ -6,7 +6,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instagram/constants.dart';
-import 'package:shimmer/shimmer.dart';
 
 class Saved extends StatefulWidget {
   const Saved({super.key});
@@ -86,12 +85,9 @@ class _SavedState extends State<Saved> {
                 ],
               );
             } else if (snapshot.connectionState == ConnectionState.waiting) {
-              return Shimmer.fromColors(
-                baseColor: Colors.grey,
-                highlightColor: Colors.blue,
-                child: const SizedBox(
-                  width: 100,
-                  height: 100,
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.blue,
                 ),
               );
             } else {

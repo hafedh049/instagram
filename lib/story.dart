@@ -31,12 +31,12 @@ class _StoryState extends State<Story> {
                 backgroundColor: Colors.white,
                 radius: 23,
                 child: CircleAvatar(
-                  backgroundImage: AssetImage("assets/hafedh.png"),
-                ),
+                    // backgroundImage: AssetImage("assets/hafedh.png"),
+                    ),
               ),
             ),
             Text(
-              "hafedh",
+              "user", //"hafedh",
               style: GoogleFonts.abel(
                 fontSize: 14,
                 color: bgColor == Colors.white ? Colors.black : Colors.white,

@@ -1,5 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instagram/chat_room.dart';
@@ -137,79 +140,150 @@ class ChatsState extends State<Chats> {
           ),
           Expanded(
             flex: 6,
-            child: ListView.builder(
-              addAutomaticKeepAlives: true,
-              addRepaintBoundaries: true,
-              physics: const BouncingScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: 100,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: InkWell(
-                    highlightColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    focusColor: Colors.transparent,
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => ChatRoom(
-                                remoteData: {
-                                  "uid": "XNToL0FJxwTXkmgupH8agYd3HuI3"
-                                }),
-                          ));
-                    },
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const CircleAvatar(
-                          radius: 25,
-                          backgroundImage: AssetImage("assets/hafedh.png"),
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Camera",
-                              style: GoogleFonts.abel(
-                                fontSize: 16,
-                                color: bgColor == Colors.white
-                                    ? Colors.black
-                                    : Colors.white,
-                              ),
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance
+                  .collection("chats")
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .collection("messages")
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+                if (snapshot.hasData) {
+                  List<QueryDocumentSnapshot<Map<String, dynamic>>> data =
+                      snapshot.data!.docs;
+                  return data.isNotEmpty
+                      ? ListView.builder(
+                          addAutomaticKeepAlives: true,
+                          addRepaintBoundaries: true,
+                          physics: const BouncingScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: 100,
+                          itemBuilder: (BuildContext context, int index) {
+                            return FutureBuilder<
+                                DocumentSnapshot<Map<String, dynamic>>>(
+                              future: FirebaseFirestore.instance
+                                  .collection("users")
+                                  .doc(data[index].id)
+                                  .get(),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<
+                                          DocumentSnapshot<
+                                              Map<String, dynamic>>>
+                                      snapshot) {
+                                if (snapshot.hasData) {
+                                  Map<String, dynamic> remoteData =
+                                      snapshot.data!.data()!;
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                      highlightColor: Colors.transparent,
+                                      splashColor: Colors.transparent,
+                                      focusColor: Colors.transparent,
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                ChatRoom(
+                                              remoteData: remoteData,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 25,
+                                            backgroundImage:
+                                                CachedNetworkImageProvider(
+                                              remoteData["profile_picture_url"],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                remoteData["username"],
+                                                style: GoogleFonts.abel(
+                                                  fontSize: 16,
+                                                  color: bgColor == Colors.white
+                                                      ? Colors.black
+                                                      : Colors.white,
+                                                ),
+                                              ),
+                                              Text(
+                                                remoteData["about"],
+                                                style: GoogleFonts.abel(
+                                                  fontSize: 16,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const Spacer(),
+                                          IconButton(
+                                            highlightColor: Colors.transparent,
+                                            splashColor: Colors.transparent,
+                                            focusColor: Colors.transparent,
+                                            onPressed: () {},
+                                            icon: Icon(
+                                              FontAwesomeIcons.camera,
+                                              size: 15,
+                                              color: bgColor == Colors.white
+                                                  ? Colors.black
+                                                  : Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                } else if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.blue,
+                                    ),
+                                  );
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: snapshot.error.toString());
+                                  return Container();
+                                }
+                              },
+                            );
+                          },
+                        )
+                      : Center(
+                          child: Text(
+                            "There is no chats",
+                            style: GoogleFonts.abel(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: bgColor == Colors.white
+                                  ? Colors.black
+                                  : Colors.white,
                             ),
-                            Text(
-                              "lol - 14m",
-                              style: GoogleFonts.abel(
-                                fontSize: 16,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          highlightColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          onPressed: () {},
-                          icon: Icon(
-                            FontAwesomeIcons.camera,
-                            size: 15,
-                            color: bgColor == Colors.white
-                                ? Colors.black
-                                : Colors.white,
                           ),
-                        ),
-                      ],
+                        );
+                } else if (snapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.blue,
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  Fluttertoast.showToast(msg: snapshot.error.toString());
+                  return Container();
+                }
               },
             ),
-          )
+          ),
         ],
       ),
     );

@@ -2,22 +2,47 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instagram/constants.dart';
 import 'package:instagram/sign_in.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'homescreen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
       overlays: [SystemUiOverlay.top]);
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    systemNavigationBarColor: bgColor,
-    statusBarColor: bgColor,
-    systemStatusBarContrastEnforced: true,
-    systemNavigationBarContrastEnforced: true,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      systemNavigationBarColor: bgColor,
+      statusBarColor: bgColor,
+      systemStatusBarContrastEnforced: true,
+      systemNavigationBarContrastEnforced: true,
+    ),
+  );
+  InternetConnectionChecker().onStatusChange.listen(
+    (InternetConnectionStatus status) {
+      if (status == InternetConnectionStatus.connected) {
+        Fluttertoast.showToast(
+            msg: "Connected",
+            backgroundColor: Colors.lightGreen,
+            fontSize: 16,
+            textColor: Colors.white,
+            toastLength: Toast.LENGTH_LONG);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Disconnected",
+            backgroundColor: Colors.redAccent,
+            fontSize: 16,
+            textColor: Colors.white,
+            toastLength: Toast.LENGTH_LONG);
+      }
+      play("notif");
+    },
+  );
   runApp(Main());
+  await player.stop();
 }
 
 class Main extends StatelessWidget {

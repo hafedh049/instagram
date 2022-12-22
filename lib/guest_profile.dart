@@ -1,18 +1,20 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:instagram/chat_room.dart';
 import 'package:instagram/constants.dart';
 import 'package:instagram/pictures_in_grid.dart';
 import 'package:instagram/story.dart';
 
-class GestSpace extends StatefulWidget {
-  const GestSpace({super.key});
-
+class GuestSpace extends StatefulWidget {
+  const GuestSpace({super.key, required this.data});
+  final Map<String, dynamic> data;
   @override
-  State<GestSpace> createState() => _GestSpaceState();
+  State<GuestSpace> createState() => _GuestSpaceState();
 }
 
-class _GestSpaceState extends State<GestSpace> {
+class _GuestSpaceState extends State<GuestSpace> {
   @override
   void dispose() {
     pageController.dispose();
@@ -31,7 +33,6 @@ class _GestSpaceState extends State<GestSpace> {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        centerTitle: true,
         leading: IconButton(
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
@@ -45,39 +46,6 @@ class _GestSpaceState extends State<GestSpace> {
             color: bgColor == Colors.white ? Colors.black : Colors.white,
           ),
         ),
-        actions: [
-          IconButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            focusColor: Colors.transparent,
-            onPressed: () {},
-            icon: Icon(
-              FontAwesomeIcons.ellipsis,
-              size: 15,
-              color: bgColor == Colors.white ? Colors.black : Colors.white,
-            ),
-          ),
-        ],
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              "Instagram",
-              style: GoogleFonts.abel(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: bgColor == Colors.white ? Colors.black : Colors.white,
-              ),
-            ),
-            const SizedBox(width: 5),
-            const Icon(
-              Icons.verified,
-              color: Colors.blue,
-              size: 15,
-            )
-          ],
-        ),
         backgroundColor: bgColor,
       ),
       body: Padding(
@@ -89,12 +57,14 @@ class _GestSpaceState extends State<GestSpace> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 41,
                   child: CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.pinkAccent,
-                    backgroundImage: AssetImage("assets/hafedh.png"),
+                    backgroundImage: CachedNetworkImageProvider(
+                      widget.data["profile_picture_url"],
+                    ),
                   ),
                 ),
                 Column(
@@ -102,7 +72,7 @@ class _GestSpaceState extends State<GestSpace> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "5,963",
+                      widget.data["posts_list"].length.toString(),
                       style: GoogleFonts.abel(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -127,7 +97,7 @@ class _GestSpaceState extends State<GestSpace> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "308 M",
+                      widget.data["followers_list"].length.toString(),
                       style: GoogleFonts.abel(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -152,7 +122,7 @@ class _GestSpaceState extends State<GestSpace> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "223",
+                      widget.data["following_list"].length.toString(),
                       style: GoogleFonts.abel(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -176,7 +146,7 @@ class _GestSpaceState extends State<GestSpace> {
             ),
             const SizedBox(height: 10),
             Text(
-              "Instagram",
+              widget.data["username"],
               style: GoogleFonts.abel(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -185,7 +155,9 @@ class _GestSpaceState extends State<GestSpace> {
             ),
             const SizedBox(height: 10),
             Text(
-              "Bringing you closer to the people and things you love. ♥",
+              widget.data["about"].isEmpty
+                  ? "This account has no description"
+                  : widget.data["about"],
               style: GoogleFonts.abel(
                 fontSize: 16,
                 color: bgColor == Colors.white ? Colors.black : Colors.white,
@@ -201,7 +173,6 @@ class _GestSpaceState extends State<GestSpace> {
                 "help.instagram.com",
                 style: GoogleFonts.abel(
                   fontSize: 16,
-                  //decoration: TextDecoration.underline,
                   color: Colors.blue,
                 ),
               ),
@@ -246,7 +217,15 @@ class _GestSpaceState extends State<GestSpace> {
                       highlightColor: Colors.transparent,
                       splashColor: Colors.transparent,
                       focusColor: Colors.transparent,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ChatRoom(
+                              remoteData: widget.data,
+                            ),
+                          ),
+                        );
+                      },
                       child: Center(
                         child: Text(
                           "Message",
@@ -287,15 +266,29 @@ class _GestSpaceState extends State<GestSpace> {
               ],
             ),
             const SizedBox(height: 10),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[for (int i = 0; i < 50; i++) const Story()],
-              ),
-            ),
+            !widget.data["stories_list"].isEmpty
+                ? SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        for (Map<String, dynamic> element
+                            in widget.data["stories_list"])
+                          const Story()
+                      ],
+                    ),
+                  )
+                : Text(
+                    "No Stories",
+                    style: GoogleFonts.abel(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          bgColor == Colors.white ? Colors.black : Colors.white,
+                    ),
+                  ),
             const SizedBox(height: 10),
             const Divider(
               color: Colors.grey,
@@ -439,7 +432,11 @@ class _GestSpaceState extends State<GestSpace> {
             Expanded(
               child: PageView(
                 controller: pageController,
-                children: const <Widget>[PicturesInGrid()],
+                children: <Widget>[
+                  PicturesInGrid(
+                    uid: widget.data["uid"],
+                  ),
+                ],
               ),
             ),
           ],

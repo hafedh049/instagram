@@ -2,13 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:instagram/constants.dart';
 import 'package:instagram/pictures_in_grid.dart';
+import 'package:instagram/setting_card.dart';
 import 'package:instagram/sign_in.dart';
 import 'package:instagram/story.dart';
 
@@ -38,33 +37,20 @@ class _UserProfileState extends State<UserProfile> {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        centerTitle: true,
-        leading: IconButton(
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          focusColor: Colors.transparent,
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(
-            FontAwesomeIcons.chevronLeft,
-            size: 15,
-            color: bgColor == Colors.white ? Colors.black : Colors.white,
-          ),
-        ),
         actions: <Widget>[
           IconButton(
             highlightColor: Colors.transparent,
             splashColor: Colors.transparent,
             focusColor: Colors.transparent,
             onPressed: () {
-              FirebaseAuth.instance
-                  .signOut()
-                  .then((value) => Navigator.pushReplacement(
+              FirebaseAuth.instance.signOut().then(
+                    (value) => Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (BuildContext context) => const SignIn(),
-                      )));
+                      ),
+                    ),
+                  );
             },
             icon: Icon(
               Icons.exit_to_app,
@@ -192,7 +178,9 @@ class _UserProfileState extends State<UserProfile> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    data["about"],
+                    data["about"].isEmpty
+                        ? "This account has no description"
+                        : data["about"],
                     style: GoogleFonts.abel(
                       fontSize: 16,
                       color:
@@ -253,7 +241,29 @@ class _UserProfileState extends State<UserProfile> {
                             highlightColor: Colors.transparent,
                             splashColor: Colors.transparent,
                             focusColor: Colors.transparent,
-                            onTap: () {},
+                            onTap: () {
+                              showModalBottomSheet(
+                                backgroundColor: Colors.transparent,
+                                enableDrag: true,
+                                isDismissible: true,
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    height: 400,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      color: bgColor,
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: SingleChildScrollView(
+                                        child: SettingsUI(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
                             child: Center(
                               child: Text(
                                 "Edit Profile",
@@ -270,17 +280,30 @@ class _UserProfileState extends State<UserProfile> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        for (int i = 0; i < 50; i++) const Story()
-                      ],
-                    ),
-                  ),
+                  !data["stories_list"].isEmpty
+                      ? SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              for (Map<String, dynamic> element
+                                  in data["stories_list"])
+                                const Story()
+                            ],
+                          ),
+                        )
+                      : Text(
+                          "No Stories",
+                          style: GoogleFonts.abel(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: bgColor == Colors.white
+                                ? Colors.black
+                                : Colors.white,
+                          ),
+                        ),
                   const SizedBox(height: 10),
                   const Divider(
                     color: Colors.grey,
@@ -427,7 +450,11 @@ class _UserProfileState extends State<UserProfile> {
                   Expanded(
                     child: PageView(
                       controller: pageController,
-                      children: const <Widget>[PicturesInGrid()],
+                      children: <Widget>[
+                        PicturesInGrid(
+                          uid: data["uid"],
+                        ),
+                      ],
                     ),
                   ),
                 ],
